@@ -1,0 +1,12 @@
+{
+  "title": "The Mosaic Company — Fact sheet builder",
+  "description": "Enables teams to easily update and export editable fact sheet content as PDF or images while keeping design elements locked for consistency.",
+  "language": "EN",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
