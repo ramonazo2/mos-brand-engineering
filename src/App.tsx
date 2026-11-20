@@ -21,15 +21,30 @@ interface CampaignData {
   imageUrl: string
 }
 
-type VerticalTemplate = "full-bleed" | "gradient-photo" | "image-top" | "pattern-light" | "pattern-dark"
+type VerticalTemplate = "full-bleed" | "gradient-photo" | "image-top" | "pattern-light"
 
 type VivaTemplate = "split-image" | "content-heavy" | "text-led"
+type RecognitionTemplate = "photo" | "no-photo"
 type MosaicColor = "maize-green" | "deep-green" | "gray-green" | "deep-blue" | "khaki" | "sky-blue"
 type MosaicPattern = "none" | "people" | "helmet" | "leaf"
+
+interface RecognitionData {
+  firstName: string
+  lastName: string
+  message: string
+  photoUrl: string
+}
 
 interface CommunicationOption {
   title: CommunicationType
   description: string
+}
+
+interface ChannelOption {
+  id: Channel
+  title: string
+  description: string
+  meta: string
 }
 
 interface IconProps {
@@ -68,10 +83,10 @@ const DEFAULT_FACT_DATA: FactSheetData = {
 
 const DEFAULT_CAMPAIGN: CampaignData = {
   eyebrow: "Security update",
-  title: "Your Security Is Our Priority",
+  title: "Headline 2 lines max",
   description:
-    "Starting October 1st, all Mosaic devices will require multi-factor authentication. This upgrade protects our systems and your data — setup takes less than 5 minutes.",
-  date: "Effective October 1",
+    "Short description 3–4 lines max. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.",
+  date: "",
   location: "All Mosaic employees",
   callToAction: "CTA Placeholder",
   supportingCopy:
@@ -80,6 +95,17 @@ const DEFAULT_CAMPAIGN: CampaignData = {
   bulletPoints:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
   imageUrl: "",
+}
+
+const RECOGNITION_SAMPLE_PHOTO =
+  "/assets/recognition/recognition-sample-photo.jpg"
+
+const DEFAULT_RECOGNITION_DATA: RecognitionData = {
+  firstName: "First Name",
+  lastName: "Last Name",
+  message:
+    "Recognizing your outstanding contributions, dedication, and commitment to excellence. Your efforts make a meaningful difference and help inspire those around you.",
+  photoUrl: RECOGNITION_SAMPLE_PHOTO,
 }
 
 const communicationTypes: CommunicationOption[] = [
@@ -106,6 +132,27 @@ const communicationTypes: CommunicationOption[] = [
   {
     title: "Internal campaign",
     description: "Support a coordinated company initiative.",
+  },
+]
+
+const channelOptions: ChannelOption[] = [
+  {
+    id: "viva",
+    title: "Viva Engage",
+    description: "A widescreen graphic and supporting post copy.",
+    meta: "16:9 · JPG",
+  },
+  {
+    id: "poster",
+    title: "Printed poster",
+    description: "A print-ready communication for your site.",
+    meta: "US Letter · PDF or JPG",
+  },
+  {
+    id: "both",
+    title: "Coordinated set",
+    description: "Create both assets from one message.",
+    meta: "16:9 + US Letter",
   },
 ]
 
@@ -262,105 +309,80 @@ function Header({
 }
 
 function Home({
-  onSelect,
+  selectedType,
+  onType,
+  onContinue,
+  onFactSheet,
 }: {
-  onSelect: (kind: Channel | "factsheet") => void
+  selectedType: CommunicationType | null
+  onType: (type: CommunicationType) => void
+  onContinue: () => void
+  onFactSheet: () => void
 }) {
-  const options: {
-    key: Channel | "factsheet"
-    icon: string
-    title: string
-    description: string
-    meta: string
-  }[] = [
-    {
-      key: "viva",
-      icon: "/assets/7ee4f.svg",
-      title: "Viva Engage post",
-      description: "Create a branded graphic and supporting post copy.",
-      meta: "16:9 widescreen · JPG",
-    },
-    {
-      key: "poster",
-      icon: "/assets/327a2.svg",
-      title: "Printed poster",
-      description: "Create a clear, print-ready communication for your site.",
-      meta: "US Letter · PDF or JPG",
-    },
-    {
-      key: "both",
-      icon: "/assets/3ccf6.svg",
-      title: "Coordinated set",
-      description: "Enter your message once and create both channel outputs.",
-      meta: "16:9 + US Letter",
-    },
-    {
-      key: "factsheet",
-      icon: "/assets/53a8f.svg",
-      title: "Site fact sheet",
-      description: "Build a consistent overview of a Mosaic facility.",
-      meta: "US Letter · PDF or JPG",
-    },
-  ]
-
   return (
     <div className="home-view home-view-edited">
       <div className="home-heading">
-        <h1>What do you need to create?</h1>
+        <h1>What are you communicating?</h1>
         <p>
-          Start with where your message needs to appear. We’ll guide the content
-          and apply the right brand rules.
+          Choose the kind of message. We’ll use it to guide the details and
+          recommend an on-brand design.
         </p>
       </div>
-      <div className="create-list">
-        {options.map((option) => (
+      <div className="type-grid home-intent-grid">
+        {communicationTypes.map((option) => (
           <button
-            key={option.key}
-            className="create-option"
-            onClick={() => onSelect(option.key)}
+            key={option.title}
+            className={`type-option ${selectedType === option.title ? "selected" : ""}`}
+            aria-pressed={selectedType === option.title}
+            onClick={() => onType(option.title)}
           >
-            <span className="option-icon">
-              <img src={option.icon} alt="" />
+            <span className="selection-dot">
+              {selectedType === option.title && <span />}
             </span>
-            <span className="option-copy">
-              <strong>{option.title}</strong>
-              <span>{option.description}</span>
-            </span>
-            <span className="option-meta">{option.meta}</span>
-            <span className="option-arrow">
-              <img src="/assets/d8b92.svg" alt="" />
-            </span>
+            <strong>{option.title}</strong>
+            <p>{option.description}</p>
           </button>
         ))}
       </div>
-      <div className="principle-note">
-        <span className="note-rule" />
+      {selectedType === "Recognition" && (
+        <p className="recognition-flow-note">
+          Recognition creates a Viva Engage post using one of two approved
+          INSPIRE layouts.
+        </p>
+      )}
+      <div className="setup-footer home-footer">
+        <button className="secondary-button" onClick={onFactSheet}>
+          Create a site fact sheet
+        </button>
+        <button
+          className="primary-button"
+          disabled={!selectedType}
+          onClick={onContinue}
+        >
+          {selectedType === "Recognition"
+            ? "Continue to recognition"
+            : "Choose where it appears"}{" "}
+          <Icon name="arrow" size={16} />
+        </button>
       </div>
     </div>
   )
 }
 
-function Setup({
+function OutputSelection({
   channel,
   type,
-  response,
-  onType,
-  onResponse,
+  onChannel,
   onContinue,
 }: {
-  channel: Channel
+  channel: Channel | null
   type: CommunicationType
-  response: string
-  onType: (value: CommunicationType) => void
-  onResponse: (value: string) => void
+  onChannel: (value: Channel) => void
   onContinue: () => void
 }) {
   const channelLabel =
-    channel === "viva"
-      ? "Viva Engage"
-      : channel === "poster"
-        ? "Printed poster"
-        : "Coordinated set"
+    channelOptions.find((option) => option.id === channel)?.title ??
+    "Choose an output"
   return (
     <div className="setup-layout">
       <aside className="outline-panel">
@@ -371,85 +393,64 @@ function Setup({
               <Icon name="check" size={14} />
             </span>
             <div>
-              <small>Channel</small>
-              <strong>{channelLabel}</strong>
+              <small>Communication type</small>
+              <strong>{type}</strong>
             </div>
           </li>
           <li className="active">
             <span>2</span>
             <div>
-              <small>Communication type</small>
-              <strong>{type}</strong>
+              <small>Output</small>
+              <strong>{channelLabel}</strong>
             </div>
           </li>
           <li>
             <span>3</span>
             <div>
-              <small>Desired response</small>
-              <strong>{response}</strong>
+              <small>Next</small>
+              <strong>Message details</strong>
             </div>
           </li>
         </ol>
-        <div className="rules-summary">
-          <p>Brand rules applied</p>
-          <span>
-            <Icon name="check" size={13} /> Approved type hierarchy
-          </span>
-          <span>
-            <Icon name="check" size={13} /> Accessible contrast
-          </span>
-          <span>
-            <Icon name="check" size={13} /> Channel-safe content limits
-          </span>
-        </div>
       </aside>
       <main className="setup-content">
         <div className="setup-section">
           <span className="section-number">01</span>
           <div>
-            <h2>What are you communicating?</h2>
-            <p>Choose the option that best describes the message.</p>
+            <h2>Where will people see this?</h2>
+            <p>
+              Choose an output. Your message will be prepared for the selected
+              channel.
+            </p>
           </div>
         </div>
-        <div className="type-grid">
-          {communicationTypes.map((item) => (
+        <div className="type-grid channel-grid">
+          {channelOptions.map((option) => (
             <button
-              key={item.title}
-              className={`type-option ${type === item.title ? "selected" : ""}`}
-              onClick={() => onType(item.title)}
+              key={option.id}
+              className={`type-option ${channel === option.id ? "selected" : ""}`}
+              aria-pressed={channel === option.id}
+              onClick={() => onChannel(option.id)}
             >
               <span className="selection-dot">
-                {type === item.title && <span />}
+                {channel === option.id && <span />}
               </span>
-              <strong>{item.title}</strong>
-              <p>{item.description}</p>
+              <strong>{option.title}</strong>
+              <p>{option.description}</p>
+              <small>{option.meta}</small>
             </button>
           ))}
         </div>
-        <div className="response-block">
-          <div className="setup-section compact">
-            <span className="section-number">02</span>
-            <div>
-              <h2>What should employees do?</h2>
-              <p>This sets the message hierarchy and call to action.</p>
-            </div>
-          </div>
-          <select
-            value={response}
-            onChange={(event) => onResponse(event.target.value)}
-          >
-            {responseOptions.map((option) => (
-              <option key={option}>{option}</option>
-            ))}
-          </select>
-        </div>
-        <div className="setup-footer">
+        <div className="setup-footer channel-footer">
           <p>
-            You can adjust content in the next step. Design decisions stay
-            protected.
+            We’ll use your message type to guide the content in the next step.
           </p>
-          <button className="primary-button" onClick={onContinue}>
-            Build communication <Icon name="arrow" size={16} />
+          <button
+            className="primary-button"
+            disabled={!channel}
+            onClick={onContinue}
+          >
+            Continue to message <Icon name="arrow" size={16} />
           </button>
         </div>
       </main>
@@ -482,11 +483,6 @@ const verticalTemplates: {
     name: "Light pattern",
     description: "Text-led communication",
   },
-  {
-    id: "pattern-dark",
-    name: "Dark pattern",
-    description: "Image-led with longer copy",
-  },
 ]
 
 const vivaTemplates: {
@@ -508,6 +504,23 @@ const vivaTemplates: {
     id: "text-led",
     name: "Text led",
     description: "Announcements + updates",
+  },
+]
+
+const recognitionTemplates: {
+  id: RecognitionTemplate
+  name: string
+  description: string
+}[] = [
+  {
+    id: "photo",
+    name: "With photo",
+    description: "Recognize someone with their photo",
+  },
+  {
+    id: "no-photo",
+    name: "Without photo",
+    description: "A bold, text-led recognition",
   },
 ]
 
@@ -646,19 +659,267 @@ function VivaPreview({
   )
 }
 
-function PosterPreview({
+function RecognitionPreview({
   data,
   template,
 }: {
+  data: RecognitionData
+  template: RecognitionTemplate
+}) {
+  const isPhotoLayout = template === "photo"
+  const employeeName = `${data.firstName} ${data.lastName}`.trim()
+
+  return (
+    <div
+      className={`viva-artboard recognition-artboard recognition-${template}`}
+    >
+      {isPhotoLayout ? (
+        <>
+          <section className="recognition-copy">
+            <img
+              className="recognition-logo recognition-logo-black"
+              src="/assets/recognition/inspire-logo-black.png"
+              alt="INSPIRE"
+            />
+            <h2>
+              <span>{data.firstName}</span>
+              <span>{data.lastName}</span>
+            </h2>
+            <p>{data.message}</p>
+          </section>
+          <section className="recognition-photo-panel">
+            <img
+              className="recognition-pattern"
+              src="/assets/5407e.svg"
+              alt=""
+            />
+            <span className="recognition-website">inspire.mosaicco.com</span>
+            <div className="recognition-photo-frame">
+              <img
+                className={
+                  data.photoUrl === RECOGNITION_SAMPLE_PHOTO
+                    ? "recognition-sample-photo"
+                    : ""
+                }
+                src={data.photoUrl}
+                alt={employeeName ? `${employeeName} recognition portrait` : ""}
+              />
+            </div>
+            <p className="recognition-hashtags">
+              #InspireSpotlight | #DestacadoInspire | #DestaqueInspire |
+              #Inspire聚焦
+            </p>
+          </section>
+        </>
+      ) : (
+        <>
+          <img
+            className="recognition-pattern"
+            src="/assets/5407e.svg"
+            alt=""
+          />
+          <section className="recognition-no-photo-copy">
+            <img
+              className="recognition-logo recognition-logo-white"
+              src="/assets/recognition/inspire-logo-white.png"
+              alt="INSPIRE"
+            />
+            <span className="recognition-website">inspire.mosaicco.com</span>
+            <h2>
+              <span>{data.firstName}</span>
+              <span>{data.lastName}</span>
+            </h2>
+            <p>{data.message}</p>
+            <span className="recognition-hashtags">
+              #InspireSpotlight | #DestacadoInspire | #DestaqueInspire |
+              #Inspire聚焦
+            </span>
+          </section>
+        </>
+      )}
+    </div>
+  )
+}
+
+function RecognitionEditor({
+  data,
+  onData,
+}: {
+  data: RecognitionData
+  onData: (data: RecognitionData) => void
+}) {
+  const [template, setTemplate] = useState<RecognitionTemplate>("photo")
+  const previewRef = useRef<HTMLDivElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const [exporting, setExporting] = useState(false)
+
+  const update = (key: keyof RecognitionData, value: string) =>
+    onData({ ...data, [key]: value })
+
+  const uploadPhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === "string") update("photoUrl", reader.result)
+    }
+    reader.readAsDataURL(file)
+    event.target.value = ""
+  }
+
+  const exportJpg = async () => {
+    if (!previewRef.current) return
+    setExporting(true)
+    try {
+      await document.fonts.ready
+      const fontEmbedCSS = await getFontEmbedCSS(previewRef.current)
+      const url = await toJpeg(previewRef.current, {
+        backgroundColor: "#ffffff",
+        fontEmbedCSS,
+        pixelRatio: 3,
+        quality: 0.96,
+      })
+      const link = document.createElement("a")
+      link.download = "mosaic-inspire-recognition.jpg"
+      link.href = url
+      link.click()
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  return (
+    <div className="editor-layout">
+      <aside className="field-panel">
+        <div className="panel-heading">
+          <p>INSPIRE recognition</p>
+          <span>Viva Engage · 16:9</span>
+        </div>
+        <div className="field-scroll">
+          <label className="editor-field">
+            <span>
+              <b>First name</b>
+            </span>
+            <input
+              value={data.firstName}
+              onChange={(event) => update("firstName", event.target.value)}
+            />
+          </label>
+          <label className="editor-field">
+            <span>
+              <b>Last name</b>
+            </span>
+            <input
+              value={data.lastName}
+              onChange={(event) => update("lastName", event.target.value)}
+            />
+          </label>
+          <label className="editor-field">
+            <span>
+              <b>Recognition message</b>
+            </span>
+            <textarea
+              rows={5}
+              value={data.message}
+              onChange={(event) => update("message", event.target.value)}
+            />
+          </label>
+          <div className="template-picker">
+            <span className="template-picker-label">
+              Approved layout
+              <small>INSPIRE · Viva Engage</small>
+            </span>
+            <div className="template-options">
+              {recognitionTemplates.map((option) => (
+                <button
+                  key={option.id}
+                  className={template === option.id ? "selected" : ""}
+                  aria-pressed={template === option.id}
+                  onClick={() => setTemplate(option.id)}
+                >
+                  <span
+                    className={`template-thumb thumb-recognition-${option.id}`}
+                  />
+                  <b>{option.name}</b>
+                  <small>{option.description}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+          {template === "photo" && (
+            <div className="campaign-image-control recognition-image-control">
+              <span>
+                <b>Employee photo</b>
+                <small>Optional · upload a portrait</small>
+              </span>
+              <div>
+                <button onClick={() => imageInputRef.current?.click()}>
+                  {data.photoUrl === RECOGNITION_SAMPLE_PHOTO
+                    ? "Upload photo"
+                    : "Replace photo"}
+                </button>
+                {data.photoUrl !== RECOGNITION_SAMPLE_PHOTO && (
+                  <button
+                    onClick={() =>
+                      update("photoUrl", RECOGNITION_SAMPLE_PHOTO)
+                    }
+                  >
+                    Use sample photo
+                  </button>
+                )}
+              </div>
+              <input
+                hidden
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={uploadPhoto}
+              />
+            </div>
+          )}
+        </div>
+      </aside>
+      <main className="preview-workspace">
+        <div className="preview-toolbar">
+          <strong>INSPIRE recognition · Live preview</strong>
+        </div>
+        <div className="artboard-stage viva">
+          <div ref={previewRef} className="export-surface">
+            <RecognitionPreview data={data} template={template} />
+          </div>
+        </div>
+        <div className="export-bar">
+          <span>Viva Engage · 1920 × 1080 px</span>
+          <div className="button-row">
+            <button
+              className="primary-button"
+              disabled={exporting}
+              onClick={exportJpg}
+            >
+              <Icon name="download" size={15} />{" "}
+              {exporting ? "Exporting…" : "Export JPG"}
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+function PosterPreview({
+  data,
+  template,
+  backgroundColor,
+}: {
   data: CampaignData
   template: VerticalTemplate
+  backgroundColor: MosaicColor
 }) {
   const defaults: Record<VerticalTemplate, string> = {
     "full-bleed": "/assets/e9a47.png",
     "gradient-photo": "/assets/679d8.png",
     "image-top": "/assets/06001.png",
     "pattern-light": "",
-    "pattern-dark": "/assets/06001.png",
   }
   const image = data.imageUrl || defaults[template]
 
@@ -678,28 +939,12 @@ function PosterPreview({
 
   if (template === "image-top") {
     return (
-      <div className="poster-artboard poster-image-top">
+      <div
+        className={`poster-artboard poster-image-top mosaic-bg-${backgroundColor}`}
+      >
         <img className="poster-hero-image" src={image} alt="" />
         <MosaicLogo />
         <section className="approved-poster-copy">
-          <h2>{data.title}</h2>
-          <p>{data.description}</p>
-        </section>
-      </div>
-    )
-  }
-
-  if (template === "pattern-dark") {
-    return (
-      <div className="poster-artboard poster-pattern-dark">
-        <img className="poster-hero-image" src={image} alt="" />
-        <MosaicLogo />
-        <section className="approved-poster-copy">
-          <img
-            className="poster-pattern-image"
-            src="/assets/67239.svg"
-            alt=""
-          />
           <h2>{data.title}</h2>
           <p>{data.description}</p>
         </section>
@@ -708,7 +953,9 @@ function PosterPreview({
   }
 
   return (
-    <div className="poster-artboard poster-pattern-light">
+    <div
+      className={`poster-artboard poster-pattern-light mosaic-bg-${backgroundColor}`}
+    >
       <MosaicLogo />
       <img className="poster-pattern-image" src="/assets/1dd2a.svg" alt="" />
       <section className="approved-poster-copy">
@@ -723,12 +970,14 @@ function CampaignEditor({
   channel,
   type,
   response,
+  onResponse,
   data,
   onData,
 }: {
   channel: Channel
   type: CommunicationType
   response: string
+  onResponse: (value: string) => void
   data: CampaignData
   onData: (data: CampaignData) => void
 }) {
@@ -740,6 +989,7 @@ function CampaignEditor({
   const [exporting, setExporting] = useState(false)
   const [verticalTemplate, setVerticalTemplate] =
     useState<VerticalTemplate>("image-top")
+  const [posterColor, setPosterColor] = useState<MosaicColor>("gray-green")
   const [vivaTemplate, setVivaTemplate] = useState<VivaTemplate>("split-image")
   const [showCta, setShowCta] = useState(false)
   const [panelColor, setPanelColor] = useState<MosaicColor>("deep-blue")
@@ -860,6 +1110,21 @@ function CampaignEditor({
           <span>{response}</span>
         </div>
         <div className="field-scroll">
+          <label className="editor-field campaign-response-field">
+            <span>
+              <b>Desired response</b>
+              <small>What should employees do?</small>
+            </span>
+            <select
+              className="campaign-response-select"
+              value={response}
+              onChange={(event) => onResponse(event.target.value)}
+            >
+              {responseOptions.map((option) => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+          </label>
           <div className="template-picker">
             <span className="template-picker-label">
               Approved layout
@@ -974,7 +1239,29 @@ function CampaignEditor({
               </div>
             </>
           )}
-          {(preview === "poster" ||
+          {preview === "poster" &&
+            (verticalTemplate === "image-top" ||
+              verticalTemplate === "pattern-light") && (
+              <div className="template-property">
+                <span>
+                  <b>Background color</b>
+                  <small>Mosaic Design System</small>
+                </span>
+                <div className="property-choice-grid colors">
+                  {mosaicColors.map((color) => (
+                    <button
+                      key={color.id}
+                      className={posterColor === color.id ? "selected" : ""}
+                      onClick={() => setPosterColor(color.id)}
+                    >
+                      <span className={`color-dot mosaic-bg-${color.id}`} />
+                      {color.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          {((preview === "poster" && verticalTemplate !== "pattern-light") ||
             (preview === "viva" && vivaTemplate === "split-image")) && (
             <div className="campaign-image-control">
               <span>
@@ -1044,10 +1331,6 @@ function CampaignEditor({
               </button>
             )}
           </div>
-          <div className="quality-status">
-            <span />
-            <strong>Brand check passed</strong>
-          </div>
         </div>
         <div className={`artboard-stage ${preview}`}>
           <div ref={previewRef} className="export-surface">
@@ -1062,7 +1345,11 @@ function CampaignEditor({
                 textPattern={textPattern}
               />
             ) : (
-              <PosterPreview data={data} template={verticalTemplate} />
+              <PosterPreview
+                data={data}
+                template={verticalTemplate}
+                backgroundColor={posterColor}
+              />
             )}
           </div>
         </div>
@@ -1239,10 +1526,6 @@ function FactSheetEditor({
       <main className="preview-workspace fact-workspace">
         <div className="preview-toolbar">
           <strong>Live preview</strong>
-          <div className="quality-status">
-            <span />
-            <strong>Brand check passed</strong>
-          </div>
         </div>
         <div ref={previewAreaRef} className="fact-stage">
           <div
@@ -1287,38 +1570,39 @@ function FactSheetEditor({
 
 export default function App() {
   const [view, setView] = useState<View>("home")
-  const [channel, setChannel] = useState<Channel>("viva")
+  const [channel, setChannel] = useState<Channel | null>(null)
   const [communicationType, setCommunicationType] =
-    useState<CommunicationType>("Event promotion")
+    useState<CommunicationType | null>(null)
   const [response, setResponse] = useState("Learn more")
   const [campaignData, setCampaignData] = useState(DEFAULT_CAMPAIGN)
+  const [recognitionData, setRecognitionData] = useState(
+    DEFAULT_RECOGNITION_DATA,
+  )
   const [factData, setFactData] = useState(DEFAULT_FACT_DATA)
 
   const goHome = () => setView("home")
-  const start = (kind: Channel | "factsheet") => {
-    if (kind === "factsheet") {
-      setView("factsheet")
-      return
-    }
-    setChannel(kind)
-    setView("setup")
-  }
 
   const title =
     view === "home"
       ? "Create communication"
       : view === "setup"
-        ? "Communication brief"
+        ? "Choose output"
         : view === "factsheet"
           ? "Site fact sheet"
-          : communicationType
+          : communicationType ?? "Create communication"
 
   return (
     <div className="app-shell">
       <div className="app-main">
         <Header
           onHome={goHome}
-          crumbs={view === "home" ? ["Home", title] : ["Create", title]}
+          crumbs={
+            view === "home"
+              ? ["Home", title]
+              : view === "setup"
+                ? ["Create", communicationType ?? "Communication", title]
+                : ["Create", title]
+          }
           action={
             view !== "home" ? (
               <button className="text-button" onClick={goHome}>
@@ -1336,26 +1620,56 @@ export default function App() {
           }
         />
         <div className={`app-content ${view === "home" ? "home-content" : ""}`}>
-          {view === "home" && <Home onSelect={start} />}
-          {view === "setup" && (
-            <Setup
-              channel={channel}
-              type={communicationType}
-              response={response}
-              onType={setCommunicationType}
-              onResponse={setResponse}
-              onContinue={() => setView("campaign")}
+          {view === "home" && (
+            <Home
+              selectedType={communicationType}
+              onType={(type) => {
+                setCommunicationType(type)
+                setChannel(null)
+                setResponse("Learn more")
+              }}
+              onContinue={() => {
+                if (communicationType === "Recognition") {
+                  setChannel("viva")
+                  setView("campaign")
+                } else {
+                  setView("setup")
+                }
+              }}
+              onFactSheet={() => setView("factsheet")}
             />
           )}
-          {view === "campaign" && (
-            <CampaignEditor
+          {view === "setup" && communicationType && (
+            <OutputSelection
               channel={channel}
               type={communicationType}
-              response={response}
-              data={campaignData}
-              onData={setCampaignData}
+              onChannel={setChannel}
+              onContinue={() => {
+                if (channel) setView("campaign")
+              }}
             />
           )}
+          {view === "campaign" &&
+            channel === "viva" &&
+            communicationType === "Recognition" && (
+              <RecognitionEditor
+                data={recognitionData}
+                onData={setRecognitionData}
+              />
+            )}
+          {view === "campaign" &&
+            channel &&
+            communicationType &&
+            communicationType !== "Recognition" && (
+              <CampaignEditor
+                channel={channel}
+                type={communicationType}
+                response={response}
+                onResponse={setResponse}
+                data={campaignData}
+                onData={setCampaignData}
+              />
+            )}
           {view === "factsheet" && (
             <FactSheetEditor data={factData} onData={setFactData} />
           )}
