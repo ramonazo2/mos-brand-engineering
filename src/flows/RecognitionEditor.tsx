@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { getFontEmbedCSS, toJpeg } from "html-to-image"
-import { Icon, useVivaCopyFit, recognitionTemplates, RECOGNITION_SAMPLE_PHOTO, type RecognitionData, type RecognitionTemplate } from "./shared"
+import { Icon, assetUrl, useVivaCopyFit, recognitionTemplates, RECOGNITION_SAMPLE_PHOTO, type RecognitionData, type RecognitionTemplate } from "./shared"
 
 function RecognitionPreview({
   data,
@@ -21,7 +21,7 @@ function RecognitionPreview({
           <section className="recognition-copy">
             <img
               className="recognition-logo recognition-logo-black"
-              src="/assets/recognition/inspire-logo-black.png"
+              src={assetUrl("recognition/inspire-logo-black.png")}
               alt="INSPIRE"
             />
             <h2>
@@ -33,7 +33,7 @@ function RecognitionPreview({
           <section className="recognition-photo-panel">
             <img
               className="recognition-pattern"
-              src="/assets/5407e.svg"
+              src={assetUrl("5407e.svg")}
               alt=""
             />
             <span className="recognition-website">inspire.mosaicco.com</span>
@@ -58,13 +58,13 @@ function RecognitionPreview({
         <>
           <img
             className="recognition-pattern"
-            src="/assets/5407e.svg"
+            src={assetUrl("5407e.svg")}
             alt=""
           />
           <section className="recognition-no-photo-copy">
             <img
               className="recognition-logo recognition-logo-white"
-              src="/assets/recognition/inspire-logo-white.png"
+              src={assetUrl("recognition/inspire-logo-white.png")}
               alt="INSPIRE"
             />
             <span className="recognition-website">inspire.mosaicco.com</span>

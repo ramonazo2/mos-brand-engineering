@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react"
 import { getFontEmbedCSS, toJpeg } from "html-to-image"
 import { jsPDF } from "jspdf"
-import { Icon, MosaicLogo, useVivaCopyFit, verticalTemplates, vivaTemplates, mosaicColors, mosaicPatterns, responseOptions, campaignCtaOptions, type CampaignData, type Channel, type CommunicationType, type VerticalTemplate, type VivaTemplate, type MosaicColor, type MosaicPattern } from "./shared"
+import { Icon, MosaicLogo, assetUrl, useVivaCopyFit, verticalTemplates, vivaTemplates, mosaicColors, mosaicPatterns, responseOptions, campaignCtaOptions, type CampaignData, type Channel, type CommunicationType, type VerticalTemplate, type VivaTemplate, type MosaicColor, type MosaicPattern } from "./shared"
 
 function VivaPreview({
   data,
@@ -23,10 +23,10 @@ function VivaPreview({
   const getPatternAsset = (pattern: MosaicPattern, contentHeavy = false) => {
     if (pattern === "none") return ""
     if (pattern === "people") {
-      return contentHeavy ? "/assets/98c9a.svg" : "/assets/5407e.svg"
+      return assetUrl(contentHeavy ? "98c9a.svg" : "5407e.svg")
     }
-    if (pattern === "helmet") return "/assets/baf6e.svg"
-    return "/assets/5cf47.svg"
+    if (pattern === "helmet") return assetUrl("baf6e.svg")
+    return assetUrl("5cf47.svg")
   }
 
   if (template === "content-heavy") {
@@ -89,7 +89,7 @@ function VivaPreview({
     )
   }
 
-  const image = data.imageUrl || "/assets/81e9f.png"
+  const image = data.imageUrl || assetUrl("81e9f.png")
 
   return (
     <div
@@ -124,9 +124,9 @@ function PosterPreview({
   isEvent: boolean
 }) {
   const defaults: Record<VerticalTemplate, string> = {
-    "full-bleed": "/assets/e9a47.png",
-    "gradient-photo": "/assets/679d8.png",
-    "image-top": "/assets/06001.png",
+    "full-bleed": assetUrl("e9a47.png"),
+    "gradient-photo": assetUrl("679d8.png"),
+    "image-top": assetUrl("06001.png"),
     "pattern-light": "",
   }
   const image = data.imageUrl || defaults[template]
@@ -177,7 +177,7 @@ function PosterPreview({
       className={`poster-artboard poster-pattern-light mosaic-bg-${backgroundColor} ${isEvent ? "poster-event" : ""}`}
     >
       <MosaicLogo />
-      <img className="poster-pattern-image" src="/assets/1dd2a.svg" alt="" />
+      <img className="poster-pattern-image" src={assetUrl("1dd2a.svg")} alt="" />
       {copy}
     </div>
   )

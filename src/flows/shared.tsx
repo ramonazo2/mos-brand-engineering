@@ -102,8 +102,10 @@ export const DEFAULT_EVENT_CAMPAIGN: CampaignData = {
   callToAction: "CTA Placeholder",
 }
 
+export const assetUrl = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`
+
 export const RECOGNITION_SAMPLE_PHOTO =
-  "/assets/recognition/recognition-sample-photo.jpg"
+  assetUrl("recognition/recognition-sample-photo.jpg")
 
 export const DEFAULT_RECOGNITION_DATA: RecognitionData = {
   name: "Name",
@@ -359,7 +361,7 @@ export function MosaicLogo({ wide = false }: { wide?: boolean }) {
   return (
     <img
       className={wide ? "mosaic-logo wide" : "mosaic-logo"}
-      src={wide ? "/assets/06ca4.svg" : "/assets/49e24.png"}
+      src={assetUrl(wide ? "06ca4.svg" : "49e24.png")}
       alt="Mosaic"
     />
   )
